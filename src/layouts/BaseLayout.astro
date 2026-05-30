@@ -15,11 +15,17 @@ const { title = 'Digital Garden' } = Astro.props;
   <title>{title}</title>
   <ClientRouter />
   <script is:inline>
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (stored === 'dark' || (!stored && prefersDark)) {
-      document.documentElement.classList.add('dark');
+    function applyStoredTheme(el) {
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (!stored && prefersDark)) {
+        el.classList.add('dark');
+      } else {
+        el.classList.remove('dark');
+      }
     }
+    applyStoredTheme(document.documentElement);
+    document.addEventListener('astro:before-swap', e => applyStoredTheme(e.newDocument.documentElement));
   </script>
 </head>
 <body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen">
