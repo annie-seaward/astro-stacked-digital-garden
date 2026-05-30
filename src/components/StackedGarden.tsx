@@ -30,11 +30,11 @@ async function fetchNote(slug: string): Promise<NoteData | null> {
   }
 }
 
-function readPrimaryFromDOM(): NoteData {
-  const wrapper = document.querySelector('[data-primary-slug]');
+function readPrimaryFromDOM(doc: Document = document): NoteData {
+  const wrapper = doc.querySelector('[data-primary-slug]');
   const slug = wrapper?.getAttribute('data-primary-slug') || '';
   const title = wrapper?.getAttribute('data-primary-title') || slug;
-  const html = document.getElementById('note-content')?.innerHTML || '';
+  const html = doc.getElementById('note-content')?.innerHTML || '';
   return { slug, title, html };
 }
 
@@ -64,10 +64,20 @@ export function StackedGarden() {
     seenSlugsRef.current.add(currentPrimary.slug);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // On sidebar navigation (astro:after-swap), update primary panel
+  // On sidebar navigation, capture new primary data before swap (while newDocument is available),
+  // then apply it after swap. transition:persist keeps the old element in the DOM with stale
+  // attributes, so we must read from newDocument rather than the live DOM after swap.
   useEffect(() => {
-    const handleSwap = () => {
-      const data = readPrimaryFromDOM();
+    let pendingData: NoteData | null = null;
+
+    const handleBeforeSwap = (e: Event) => {
+      const newDoc = (e as CustomEvent & { newDocument: Document }).newDocument;
+      if (newDoc) pendingData = readPrimaryFromDOM(newDoc);
+    };
+
+    const handleAfterSwap = () => {
+      const data = pendingData ?? readPrimaryFromDOM();
+      pendingData = null;
       cache.set(data.slug, data);
       seenSlugsRef.current = new Set([data.slug]);
       setCurrentPrimary(data);
@@ -80,8 +90,13 @@ export function StackedGarden() {
         }
       });
     };
-    document.addEventListener('astro:after-swap', handleSwap);
-    return () => document.removeEventListener('astro:after-swap', handleSwap);
+
+    document.addEventListener('astro:before-swap', handleBeforeSwap);
+    document.addEventListener('astro:after-swap', handleAfterSwap);
+    return () => {
+      document.removeEventListener('astro:before-swap', handleBeforeSwap);
+      document.removeEventListener('astro:after-swap', handleAfterSwap);
+    };
   }, []);
 
   // Rebuild panels when stackSlugs or currentPrimary changes
