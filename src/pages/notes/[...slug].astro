@@ -1,0 +1,50 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { StackedGarden } from '../../components/StackedGarden';
+import { getTopics } from '../../lib/topics';
+import { getBacklinks } from '../../lib/backlinks';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const slug = entry.id;
+const title = entry.data.title || slug.split('/').pop() || slug;
+const topics = await getTopics();
+const backlinks = getBacklinks(slug);
+---
+
+<BaseLayout title={title}>
+  <div class="flex h-screen overflow-hidden">
+    <Sidebar topics={topics} currentSlug={slug} />
+
+    <main class="flex-1 ml-0 lg:ml-60 h-screen overflow-hidden">
+      <!--
+        #note-content holds SSR-rendered markdown.
+        StackedGarden reads it on mount for the primary panel.
+        When fetching other notes, their #note-content is also extracted.
+      -->
+      <div id="note-content" class="hidden">
+        <Content />
+      </div>
+
+      <StackedGarden
+        client:only="preact"
+        primary={{ slug, title }}
+      />
+    </main>
+  </div>
+
+  {backlinks.length > 0 && (
+    <aside id="backlinks-section" class="hidden" data-backlinks={JSON.stringify(backlinks)} />
+  )}
+</BaseLayout>

@@ -1,0 +1,100 @@
+{
+  "philosophy": [
+    {
+      "slug": "index",
+      "title": "Welcome to the Garden"
+    },
+    {
+      "slug": "philosophy/free-will",
+      "title": "Free Will"
+    },
+    {
+      "slug": "philosophy/stoicism",
+      "title": "Stoicism"
+    },
+    {
+      "slug": "technology",
+      "title": "Technology"
+    },
+    {
+      "slug": "technology/language-models",
+      "title": "Language Models"
+    }
+  ],
+  "technology": [
+    {
+      "slug": "index",
+      "title": "Welcome to the Garden"
+    },
+    {
+      "slug": "philosophy",
+      "title": "Philosophy"
+    },
+    {
+      "slug": "technology/language-models",
+      "title": "Language Models"
+    },
+    {
+      "slug": "technology/the-web",
+      "title": "The Web"
+    }
+  ],
+  "wikilink": [
+    {
+      "slug": "index",
+      "title": "Welcome to the Garden"
+    }
+  ],
+  "philosophy/stoicism": [
+    {
+      "slug": "philosophy/free-will",
+      "title": "Free Will"
+    },
+    {
+      "slug": "philosophy",
+      "title": "Philosophy"
+    }
+  ],
+  "technology/language-models": [
+    {
+      "slug": "philosophy/free-will",
+      "title": "Free Will"
+    },
+    {
+      "slug": "technology",
+      "title": "Technology"
+    },
+    {
+      "slug": "technology/the-web",
+      "title": "The Web"
+    }
+  ],
+  "philosophy/free-will": [
+    {
+      "slug": "philosophy",
+      "title": "Philosophy"
+    },
+    {
+      "slug": "philosophy/stoicism",
+      "title": "Stoicism"
+    },
+    {
+      "slug": "technology",
+      "title": "Technology"
+    },
+    {
+      "slug": "technology/language-models",
+      "title": "Language Models"
+    }
+  ],
+  "technology/the-web": [
+    {
+      "slug": "technology",
+      "title": "Technology"
+    },
+    {
+      "slug": "technology/language-models",
+      "title": "Language Models"
+    }
+  ]
+}

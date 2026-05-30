@@ -1,0 +1,34 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { StackedGarden } from '../components/StackedGarden';
+import { getTopics } from '../lib/topics';
+import { getBacklinks } from '../lib/backlinks';
+
+interface Props {
+  slug: string;
+  title: string;
+  html: string;
+}
+
+const { slug, title, html } = Astro.props;
+const topics = await getTopics();
+const backlinks = getBacklinks(slug);
+---
+
+<BaseLayout title={title}>
+  <div class="flex h-screen overflow-hidden">
+    <Sidebar topics={topics} currentSlug={slug} />
+
+    <main class="flex-1 ml-0 lg:ml-60 h-screen overflow-hidden">
+      <StackedGarden
+        client:load
+        primary={{ slug, title, html }}
+      />
+    </main>
+  </div>
+
+  {backlinks.length > 0 && (
+    <div class="hidden" id="backlinks-data" data-backlinks={JSON.stringify(backlinks)}></div>
+  )}
+</BaseLayout>

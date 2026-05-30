@@ -1,0 +1,14 @@
+{
+  "index": "index",
+  "welcome-to-the-garden": "index",
+  "free-will": "philosophy/free-will",
+  "philosophy/free-will": "philosophy/free-will",
+  "philosophy": "philosophy",
+  "stoicism": "philosophy/stoicism",
+  "philosophy/stoicism": "philosophy/stoicism",
+  "technology": "technology",
+  "language-models": "technology/language-models",
+  "technology/language-models": "technology/language-models",
+  "the-web": "technology/the-web",
+  "technology/the-web": "technology/the-web"
+}
