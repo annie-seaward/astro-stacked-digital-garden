@@ -4,9 +4,12 @@ html {
 }
 
 body,
-#sidebar,
 .obstructed-panel {
   transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease;
+}
+
+#sidebar {
+  transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease, transform 300ms ease;
 }
 
 /* Unified panel wrapper — width transitions between full (520px) and obstructed (48px) */
@@ -17,6 +20,12 @@ body,
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
+}
+
+@media (max-width: 767px) {
+  .panel-wrapper {
+    transition: background-color 500ms ease, border-color 500ms ease;
+  }
 }
 
 /* Enhancement: circular reveal — only during theme toggle, not page navigation */
@@ -41,7 +50,7 @@ body,
   transition: background-color 500ms ease, color 500ms ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
   @keyframes panel-slide-in {
     from { opacity: 0; transform: translateX(40px); }
     to   { opacity: 1; transform: translateX(0); }

@@ -156,12 +156,19 @@ export function StackedGarden() {
   }, [currentPrimary.slug, stackSlugs]);
 
   const [visibleCount, setVisibleCount] = useState(999);
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const calc = () => {
-      const sidebarWidth = 240;
-      const panelWidth = 520;
-      const available = window.innerWidth - sidebarWidth;
-      setVisibleCount(Math.max(1, Math.floor(available / panelWidth)));
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setVisibleCount(1);
+      } else {
+        const sidebarWidth = 240;
+        const panelWidth = 520;
+        const available = window.innerWidth - sidebarWidth;
+        setVisibleCount(Math.max(1, Math.floor(available / panelWidth)));
+      }
     };
     calc();
     window.addEventListener('resize', calc);
@@ -187,6 +194,7 @@ export function StackedGarden() {
           const isObstructedLeft = i < leftEdge;
           const isObstructedRight = i > rightEdge;
           const isObstructed = isObstructedLeft || isObstructedRight;
+          if (isMobile && isObstructed) return null;
           const isNew = !seenSlugsRef.current.has(note.slug);
           return (
             <NotePanel
@@ -198,6 +206,7 @@ export function StackedGarden() {
               isObstructedRight={isObstructedRight}
               isHighlighted={highlightSlug === note.slug}
               isNew={isNew}
+              isMobile={isMobile}
               panelRef={(el) => {
                 if (el) panelRefs.current.set(note.slug, el);
                 else panelRefs.current.delete(note.slug);
