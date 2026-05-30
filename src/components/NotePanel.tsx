@@ -6,13 +6,14 @@ interface Props {
   html: string;
   title: string;
   isObstructed: boolean;
+  isObstructedRight: boolean;
   isHighlighted: boolean;
   panelRef?: (el: HTMLDivElement | null) => void;
   onObstructedClick: () => void;
   onLinkClick: (slug: string) => void;
 }
 
-export function NotePanel({ slug, html, title, isObstructed, isHighlighted, panelRef, onObstructedClick, onLinkClick }: Props) {
+export function NotePanel({ slug, html, title, isObstructed, isObstructedRight, isHighlighted, panelRef, onObstructedClick, onLinkClick }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,15 +36,23 @@ export function NotePanel({ slug, html, title, isObstructed, isHighlighted, pane
     ref.current.scrollTop = 0;
   }, [isHighlighted]);
 
+  useEffect(() => {
+    if (isObstructed || !ref.current) return;
+    ref.current.scrollTop = 0;
+  }, [isObstructed]);
+
   if (isObstructed) {
+    const borderClass = isObstructedRight
+      ? 'border-l border-gray-200 dark:border-gray-700'
+      : 'border-r border-gray-200 dark:border-gray-700';
     return (
       <div
-        class="obstructed-panel flex-shrink-0 w-12 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center"
+        class={`obstructed-panel flex-shrink-0 w-12 bg-gray-50 dark:bg-gray-900 ${borderClass} cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center`}
         onClick={onObstructedClick}
         aria-label={title}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && onObstructedClick()}
+        onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && onObstructedClick()}
       >
         <span class="rotate-90 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap select-none">{title}</span>
       </div>
