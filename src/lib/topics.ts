@@ -13,18 +13,24 @@ export async function getTopics(): Promise<Topic[]> {
   const folderHasIndex: Record<string, boolean> = {};
 
   for (const entry of entries) {
-    const id = entry.id; // e.g. "philosophy/stoicism" or "philosophy/index"
+    const id = entry.id;
     const parts = id.split('/');
-    if (parts.length < 2) continue;
+
+    if (parts.length === 1) {
+      // Astro strips "index" suffix: philosophy/index.md → "philosophy"
+      // Root index.md → "index" (skip); folder index → treat as has-index
+      if (id !== 'index') {
+        topFolders.add(id);
+        folderHasIndex[id] = true;
+      }
+      continue;
+    }
+
     const folder = parts[0];
     if (folder.startsWith('_')) continue;
     topFolders.add(folder);
 
-    const last = parts[parts.length - 1];
-    if (last === 'index') {
-      folderHasIndex[folder] = true;
-      folderFirstFile[folder] = id; // e.g. "philosophy/index"
-    } else if (!folderHasIndex[folder] && !folderFirstFile[folder]) {
+    if (!folderFirstFile[folder]) {
       folderFirstFile[folder] = id;
     }
   }
