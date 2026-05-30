@@ -5,7 +5,6 @@ html {
 
 body,
 #sidebar,
-.note-panel,
 .obstructed-panel {
   transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease;
 }
@@ -24,6 +23,34 @@ body,
 @keyframes theme-reveal {
   from { clip-path: circle(0% at var(--theme-toggle-x) var(--theme-toggle-y)); }
   to   { clip-path: circle(150% at var(--theme-toggle-x) var(--theme-toggle-y)); }
+}
+
+/* Panel highlight — top border flash in link color draws attention to already-open note */
+.note-panel {
+  border-top: 2px solid transparent;
+  transition: background-color 500ms ease, color 500ms ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes panel-top-border-flash {
+    0%   { border-top-color: transparent; }
+    15%  { border-top-color: rgb(21 128 61); }  /* green-700 */
+    100% { border-top-color: transparent; }
+  }
+
+  @keyframes panel-top-border-flash-dark {
+    0%   { border-top-color: transparent; }
+    15%  { border-top-color: rgb(74 222 128); }  /* green-400 */
+    100% { border-top-color: transparent; }
+  }
+
+  .note-panel.panel-highlight {
+    animation: panel-top-border-flash 1.2s ease-out forwards;
+  }
+
+  .dark .note-panel.panel-highlight {
+    animation: panel-top-border-flash-dark 1.2s ease-out forwards;
+  }
 }
 
 /* Accessibility */

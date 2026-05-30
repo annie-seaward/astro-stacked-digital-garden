@@ -53,7 +53,9 @@ export function StackedGarden() {
 
   const [stackSlugs, setStackSlugs] = useState<string[]>(getInitialStack);
   const [panels, setPanels] = useState<NoteData[]>([currentPrimary]);
+  const [highlightSlug, setHighlightSlug] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // On sidebar navigation (astro:after-swap), update primary panel
   useEffect(() => {
@@ -105,15 +107,34 @@ export function StackedGarden() {
     return () => window.removeEventListener('popstate', handler);
   }, []);
 
+  const focusNote = useCallback((slug: string) => {
+    // Slug already in stack — collapse panels to its right, highlight it
+    if (slug === currentPrimary.slug) {
+      setStackSlugs([]);
+    } else {
+      setStackSlugs(prev => {
+        const idx = prev.indexOf(slug);
+        return idx === -1 ? prev : prev.slice(0, idx + 1);
+      });
+    }
+    setHighlightSlug(slug);
+    setTimeout(() => {
+      const panel = panelRefs.current.get(slug);
+      panel?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    }, 50);
+    setTimeout(() => setHighlightSlug(null), 1300);
+  }, [currentPrimary.slug]);
+
   const openNote = useCallback((slug: string) => {
-    setStackSlugs(prev => {
-      if (prev.includes(slug) || slug === currentPrimary.slug) return prev;
-      return [...prev, slug];
-    });
+    if (slug === currentPrimary.slug || stackSlugs.includes(slug)) {
+      focusNote(slug);
+      return;
+    }
+    setStackSlugs(prev => [...prev, slug]);
     setTimeout(() => {
       containerRef.current?.scrollTo({ left: containerRef.current.scrollWidth, behavior: 'smooth' });
     }, 100);
-  }, [currentPrimary.slug]);
+  }, [currentPrimary.slug, stackSlugs, focusNote]);
 
   const bringToFront = useCallback((slug: string) => {
     if (slug === currentPrimary.slug) {
@@ -159,6 +180,11 @@ export function StackedGarden() {
             title={note.title}
             html={note.html}
             isObstructed={isObstructed}
+            isHighlighted={highlightSlug === note.slug}
+            panelRef={(el) => {
+              if (el) panelRefs.current.set(note.slug, el);
+              else panelRefs.current.delete(note.slug);
+            }}
             onObstructedClick={() => bringToFront(note.slug)}
             onLinkClick={openNote}
           />

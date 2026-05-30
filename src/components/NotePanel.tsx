@@ -6,11 +6,13 @@ interface Props {
   html: string;
   title: string;
   isObstructed: boolean;
+  isHighlighted: boolean;
+  panelRef?: (el: HTMLDivElement | null) => void;
   onObstructedClick: () => void;
   onLinkClick: (slug: string) => void;
 }
 
-export function NotePanel({ slug, html, title, isObstructed, onObstructedClick, onLinkClick }: Props) {
+export function NotePanel({ slug, html, title, isObstructed, isHighlighted, panelRef, onObstructedClick, onLinkClick }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +29,11 @@ export function NotePanel({ slug, html, title, isObstructed, onObstructedClick, 
     el.addEventListener('click', handler);
     return () => el.removeEventListener('click', handler);
   }, [isObstructed, onLinkClick]);
+
+  useEffect(() => {
+    if (!isHighlighted || !ref.current) return;
+    ref.current.scrollTop = 0;
+  }, [isHighlighted]);
 
   if (isObstructed) {
     return (
@@ -45,8 +52,11 @@ export function NotePanel({ slug, html, title, isObstructed, onObstructedClick, 
 
   return (
     <div
-      ref={ref}
-      class="note-panel flex-shrink-0 w-[520px] max-w-[90vw] h-full overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950"
+      ref={(el) => {
+        (ref as { current: HTMLDivElement | null }).current = el;
+        panelRef?.(el);
+      }}
+      class={`note-panel flex-shrink-0 w-[520px] max-w-[90vw] h-full overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950${isHighlighted ? ' panel-highlight' : ''}`}
       aria-label={title}
     >
       <div class="p-8 max-w-prose">
