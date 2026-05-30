@@ -57,14 +57,28 @@ export function StackedGarden() {
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const seenSlugsRef = useRef<Set<string>>(new Set<string>());
+
+  // Seed seen set with initial primary (never slides in)
+  useEffect(() => {
+    seenSlugsRef.current.add(currentPrimary.slug);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // On sidebar navigation (astro:after-swap), update primary panel
   useEffect(() => {
     const handleSwap = () => {
       const data = readPrimaryFromDOM();
       cache.set(data.slug, data);
+      seenSlugsRef.current = new Set([data.slug]);
       setCurrentPrimary(data);
       setStackSlugs([]);
+      requestAnimationFrame(() => {
+        const el = panelRefs.current.get(data.slug);
+        if (el) {
+          const scrollable = el.querySelector('.note-panel');
+          if (scrollable) (scrollable as HTMLElement).scrollTop = 0;
+        }
+      });
     };
     document.addEventListener('astro:after-swap', handleSwap);
     return () => document.removeEventListener('astro:after-swap', handleSwap);
@@ -85,6 +99,11 @@ export function StackedGarden() {
     buildPanels();
     return () => { cancelled = true; };
   }, [stackSlugs, currentPrimary]);
+
+  // Mark all rendered panels as seen after each render
+  useEffect(() => {
+    panels.forEach(p => seenSlugsRef.current.add(p.slug));
+  }, [panels]);
 
   // Sync URL when stack changes
   useEffect(() => {
@@ -126,9 +145,9 @@ export function StackedGarden() {
     const newIndex = panels.length;
     setStackSlugs(prev => [...prev, slug]);
     setFocusedIndex(newIndex);
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       containerRef.current?.scrollTo({ left: containerRef.current.scrollWidth, behavior: 'smooth' });
-    }, 100);
+    });
   }, [currentPrimary.slug, stackSlugs, focusNote, panels.length]);
 
   const bringToFront = useCallback((slug: string) => {
@@ -168,6 +187,7 @@ export function StackedGarden() {
           const isObstructedLeft = i < leftEdge;
           const isObstructedRight = i > rightEdge;
           const isObstructed = isObstructedLeft || isObstructedRight;
+          const isNew = !seenSlugsRef.current.has(note.slug);
           return (
             <NotePanel
               key={note.slug}
@@ -177,6 +197,7 @@ export function StackedGarden() {
               isObstructed={isObstructed}
               isObstructedRight={isObstructedRight}
               isHighlighted={highlightSlug === note.slug}
+              isNew={isNew}
               panelRef={(el) => {
                 if (el) panelRefs.current.set(note.slug, el);
                 else panelRefs.current.delete(note.slug);
