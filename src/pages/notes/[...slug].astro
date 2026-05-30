@@ -28,19 +28,18 @@ const backlinks = getBacklinks(slug);
     <Sidebar topics={topics} currentSlug={slug} />
 
     <main class="flex-1 ml-0 lg:ml-60 h-screen overflow-hidden">
-      <!--
-        #note-content holds SSR-rendered markdown.
-        StackedGarden reads it on mount for the primary panel.
-        When fetching other notes, their #note-content is also extracted.
-      -->
       <div id="note-content" class="hidden">
         <Content />
       </div>
 
-      <StackedGarden
-        client:only="preact"
-        primary={{ slug, title }}
-      />
+      <div
+        transition:persist="stacked-garden"
+        data-primary-slug={slug}
+        data-primary-title={title}
+        class="h-full"
+      >
+        <StackedGarden client:only="preact" />
+      </div>
     </main>
   </div>
 

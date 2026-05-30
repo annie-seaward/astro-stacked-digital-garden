@@ -8,10 +8,6 @@ interface NoteData {
   html: string;
 }
 
-interface Props {
-  primary: { slug: string; title: string };
-}
-
 const cache = new Map<string, NoteData>();
 
 async function fetchNote(slug: string): Promise<NoteData | null> {
@@ -34,32 +30,48 @@ async function fetchNote(slug: string): Promise<NoteData | null> {
   }
 }
 
-export function StackedGarden({ primary }: Props) {
-  const [primaryHtml] = useState(() => {
-    const html = document.getElementById('note-content')?.innerHTML || '';
-    cache.set(primary.slug, { slug: primary.slug, title: primary.title, html });
-    return html;
+function readPrimaryFromDOM(): NoteData {
+  const wrapper = document.querySelector('[data-primary-slug]');
+  const slug = wrapper?.getAttribute('data-primary-slug') || '';
+  const title = wrapper?.getAttribute('data-primary-title') || slug;
+  const html = document.getElementById('note-content')?.innerHTML || '';
+  return { slug, title, html };
+}
+
+export function StackedGarden() {
+  const [currentPrimary, setCurrentPrimary] = useState<NoteData>(() => {
+    const data = readPrimaryFromDOM();
+    cache.set(data.slug, data);
+    return data;
   });
 
   const getInitialStack = (): string[] => {
-    if (typeof window === 'undefined') return [];
     const params = new URLSearchParams(window.location.search);
     const stackParam = params.get('stack');
     return stackParam ? stackParam.split(',').filter(Boolean) : [];
   };
 
   const [stackSlugs, setStackSlugs] = useState<string[]>(getInitialStack);
-  const [panels, setPanels] = useState<NoteData[]>([
-    { slug: primary.slug, title: primary.title, html: primaryHtml },
-  ]);
+  const [panels, setPanels] = useState<NoteData[]>([currentPrimary]);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Rebuild panels when stackSlugs or primaryHtml changes
+  // On sidebar navigation (astro:after-swap), update primary panel
+  useEffect(() => {
+    const handleSwap = () => {
+      const data = readPrimaryFromDOM();
+      cache.set(data.slug, data);
+      setCurrentPrimary(data);
+      setStackSlugs([]);
+    };
+    document.addEventListener('astro:after-swap', handleSwap);
+    return () => document.removeEventListener('astro:after-swap', handleSwap);
+  }, []);
+
+  // Rebuild panels when stackSlugs or currentPrimary changes
   useEffect(() => {
     let cancelled = false;
     async function buildPanels() {
-      const primaryData: NoteData = { slug: primary.slug, title: primary.title, html: primaryHtml };
-      const loaded: NoteData[] = [primaryData];
+      const loaded: NoteData[] = [currentPrimary];
       for (const slug of stackSlugs) {
         const note = await fetchNote(slug);
         if (cancelled) return;
@@ -69,17 +81,17 @@ export function StackedGarden({ primary }: Props) {
     }
     buildPanels();
     return () => { cancelled = true; };
-  }, [stackSlugs, primaryHtml]);
+  }, [stackSlugs, currentPrimary]);
 
   // Sync URL when stack changes
   useEffect(() => {
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
     if (stackSlugs.length === 0) {
       url.searchParams.delete('stack');
     } else {
       url.searchParams.set('stack', stackSlugs.join(','));
     }
-    window.history.pushState({}, '', url.toString());
+    globalThis.history.pushState({}, '', url.toString());
   }, [stackSlugs]);
 
   // Handle browser back/forward
@@ -95,16 +107,16 @@ export function StackedGarden({ primary }: Props) {
 
   const openNote = useCallback((slug: string) => {
     setStackSlugs(prev => {
-      if (prev.includes(slug) || slug === primary.slug) return prev;
+      if (prev.includes(slug) || slug === currentPrimary.slug) return prev;
       return [...prev, slug];
     });
     setTimeout(() => {
       containerRef.current?.scrollTo({ left: containerRef.current.scrollWidth, behavior: 'smooth' });
     }, 100);
-  }, [primary.slug]);
+  }, [currentPrimary.slug]);
 
   const bringToFront = useCallback((slug: string) => {
-    if (slug === primary.slug) {
+    if (slug === currentPrimary.slug) {
       setStackSlugs([]);
       return;
     }
@@ -113,7 +125,7 @@ export function StackedGarden({ primary }: Props) {
       if (idx === -1) return prev;
       return prev.slice(0, idx + 1);
     });
-  }, [primary.slug]);
+  }, [currentPrimary.slug]);
 
   const [visibleCount, setVisibleCount] = useState(999);
   useEffect(() => {
