@@ -170,24 +170,21 @@ export function StackedGarden() {
     setFocusedIndex(idx);
   }, [currentPrimary.slug, stackSlugs]);
 
-  const [visibleCount, setVisibleCount] = useState(999);
-  const [isMobile, setIsMobile] = useState(false);
+  const calcLayout = () => {
+    const mobile = window.innerWidth < 768;
+    if (mobile) return { isMobile: true, isSinglePage: true, visibleCount: 1 };
+    const sidebarPermanent = window.innerWidth >= 1024;
+    const sidebarWidth = sidebarPermanent ? 240 : 0;
+    const panelWidth = 520;
+    const count = Math.max(1, Math.floor((window.innerWidth - sidebarWidth) / panelWidth));
+    return { isMobile: false, isSinglePage: count < 2, visibleCount: count, sidebarPermanent };
+  };
+  const [layout, setLayout] = useState(calcLayout);
+  const { visibleCount, isMobile, isSinglePage, sidebarPermanent } = layout;
   useEffect(() => {
-    const calc = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile) {
-        setVisibleCount(1);
-      } else {
-        const sidebarWidth = 240;
-        const panelWidth = 520;
-        const available = window.innerWidth - sidebarWidth;
-        setVisibleCount(Math.max(1, Math.floor(available / panelWidth)));
-      }
-    };
-    calc();
-    window.addEventListener('resize', calc);
-    return () => window.removeEventListener('resize', calc);
+    const onResize = () => setLayout(calcLayout());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   if (panels.length === 0) {
@@ -205,12 +202,18 @@ export function StackedGarden() {
         // Show as many panels as fit; keep focus visible; fill right first, then left
         const rightEdge = Math.min(panels.length - 1, clampedFocus + (visibleCount - 1));
         const leftEdge = Math.max(0, rightEdge - (visibleCount - 1));
+        const obstructedCount = isSinglePage && !isMobile ? panels.length - 1 : 0;
+        const sidebarOffset = sidebarPermanent ? 240 : 0;
+        const activePanelWidth = (isSinglePage && !isMobile)
+          ? window.innerWidth - sidebarOffset - obstructedCount * 48
+          : undefined;
         return panels.map((note, i) => {
           const isObstructedLeft = i < leftEdge;
           const isObstructedRight = i > rightEdge;
           const isObstructed = isObstructedLeft || isObstructedRight;
           if (isMobile && isObstructed) return null;
           const isNew = !seenSlugsRef.current.has(note.slug);
+          const fullWidthOverride = (isSinglePage && !isMobile && !isObstructed) ? activePanelWidth : undefined;
           return (
             <NotePanel
               key={note.slug}
@@ -222,6 +225,7 @@ export function StackedGarden() {
               isHighlighted={highlightSlug === note.slug}
               isNew={isNew}
               isMobile={isMobile}
+              fullWidthOverride={fullWidthOverride}
               panelRef={(el) => {
                 if (el) panelRefs.current.set(note.slug, el);
                 else panelRefs.current.delete(note.slug);

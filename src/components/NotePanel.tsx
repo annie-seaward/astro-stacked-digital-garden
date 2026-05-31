@@ -11,6 +11,7 @@ interface Props {
   readonly isHighlighted: boolean;
   readonly isNew: boolean;
   readonly isMobile: boolean;
+  readonly fullWidthOverride?: number;
   readonly panelRef?: (el: HTMLDivElement | null) => void;
   readonly onObstructedClick: () => void;
   readonly onLinkClick: (slug: string) => void;
@@ -19,7 +20,7 @@ interface Props {
 const FULL_WIDTH = 520;
 const OBSTRUCTED_WIDTH = 48;
 
-export function NotePanel({ html, title, isObstructed, isObstructedRight, isHighlighted, isNew, isMobile, panelRef, onObstructedClick, onLinkClick }: Props) {
+export function NotePanel({ html, title, isObstructed, isObstructedRight, isHighlighted, isNew, isMobile, fullWidthOverride, panelRef, onObstructedClick, onLinkClick }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Slide-in: fires once on mount when panel is new
@@ -65,7 +66,7 @@ export function NotePanel({ html, title, isObstructed, isObstructedRight, isHigh
     scrollableRef.current.scrollTop = 0;
   }, [isObstructed]);
 
-  const fullWidth = isMobile ? globalThis.innerWidth : Math.min(FULL_WIDTH, Math.floor(globalThis.innerWidth * 0.9));
+  const fullWidth = fullWidthOverride ?? (isMobile ? globalThis.innerWidth : Math.min(FULL_WIDTH, Math.floor(globalThis.innerWidth * 0.9)));
   const targetWidth = isObstructed ? OBSTRUCTED_WIDTH : fullWidth;
 
   const borderClass = isObstructedRight
