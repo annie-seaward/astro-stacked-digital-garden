@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import { NotePanel } from './NotePanel';
 
@@ -31,9 +30,9 @@ async function fetchNote(slug: string): Promise<NoteData | null> {
 }
 
 function readPrimaryFromDOM(doc: Document = document): NoteData {
-  const wrapper = doc.querySelector('[data-primary-slug]');
-  const slug = wrapper?.getAttribute('data-primary-slug') || '';
-  const title = wrapper?.getAttribute('data-primary-title') || slug;
+  const wrapper = doc.querySelector('[data-primary-slug]') as HTMLElement | null;
+  const slug = wrapper?.dataset?.primarySlug || '';
+  const title = wrapper?.dataset?.primaryTitle || slug;
   const html = doc.getElementById('note-content')?.innerHTML || '';
   return { slug, title, html };
 }
@@ -46,7 +45,7 @@ export function StackedGarden() {
   });
 
   const getInitialStack = (): string[] => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const stackParam = params.get('stack');
     return stackParam ? stackParam.split(',').filter(Boolean) : [];
   };
@@ -134,12 +133,12 @@ export function StackedGarden() {
   // Handle browser back/forward
   useEffect(() => {
     const handler = () => {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(globalThis.location.search);
       const stackParam = params.get('stack');
       setStackSlugs(stackParam ? stackParam.split(',').filter(Boolean) : []);
     };
-    window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
+    globalThis.addEventListener('popstate', handler);
+    return () => globalThis.removeEventListener('popstate', handler);
   }, []);
 
   const focusNote = useCallback((slug: string) => {
