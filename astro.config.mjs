@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 import preact from '@astrojs/preact';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 import remarkWikilinks from './src/lib/remark-wikilinks.mjs';
@@ -19,7 +19,10 @@ export default defineConfig({
     import.meta.env.MODE === 'development'
       ? '/'
       : '/astro-stacked-digital-garden',
-  integrations: [preact({ compat: true }), tailwind()],
+  integrations: [preact({ compat: true })],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   markdown: {
     remarkPlugins: [[remarkWikilinks, { slugmap }]],
   },
