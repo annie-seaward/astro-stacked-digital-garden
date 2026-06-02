@@ -1,7 +1,9 @@
-import { defineConfig } from 'astro/config';
+import { readFileSync } from 'node:fs';
+
 import preact from '@astrojs/preact';
 import tailwind from '@astrojs/tailwind';
-import { readFileSync } from 'fs';
+import { defineConfig } from 'astro/config';
+
 import remarkWikilinks from './src/lib/remark-wikilinks.mjs';
 
 let slugmap = {};
@@ -12,6 +14,8 @@ try {
 }
 
 export default defineConfig({
+  site: 'https://annie-seaward.github.io',
+  base: '/astro-stacked-digital-garden',
   integrations: [preact({ compat: true }), tailwind()],
   markdown: {
     remarkPlugins: [[remarkWikilinks, { slugmap }]],

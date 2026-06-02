@@ -168,7 +168,7 @@ This template uses [Tailwind CSS](https://tailwindcss.com/). Edit `tailwind.conf
 
 ## Contributing
 
-Issues, bug reports, and pull requests are welcome at [github.com/YOUR_USERNAME/astro-stacked-digital-garden](https://github.com/YOUR_USERNAME/astro-stacked-digital-garden). <!-- update with your actual repo URL -->
+Issues, bug reports, and pull requests are welcome at [github.com/YOUR_USERNAME/astro-stacked-digital-garden](https://github.com/annie-seaward/astro-stacked-digital-garden).
 
 This isn't a full-time maintained project, but reasonable contributions will be reviewed.
 
