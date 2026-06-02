@@ -14,11 +14,6 @@ try {
 }
 
 export default defineConfig({
-  site: 'https://annie-seaward.github.io',
-  base:
-    import.meta.env.MODE === 'development'
-      ? '/'
-      : '/astro-stacked-digital-garden',
   integrations: [preact({ compat: true })],
   vite: {
     plugins: [tailwindcss()],
