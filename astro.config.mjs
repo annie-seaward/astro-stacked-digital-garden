@@ -15,7 +15,10 @@ try {
 
 export default defineConfig({
   site: 'https://annie-seaward.github.io',
-  base: '/astro-stacked-digital-garden',
+  base:
+    import.meta.env.MODE === 'development'
+      ? '/'
+      : '/astro-stacked-digital-garden',
   integrations: [preact({ compat: true }), tailwind()],
   markdown: {
     remarkPlugins: [[remarkWikilinks, { slugmap }]],

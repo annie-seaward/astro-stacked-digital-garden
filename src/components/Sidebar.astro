@@ -8,6 +8,7 @@ interface Props {
 
 const { topics, currentSlug } = Astro.props;
 const siteName = 'My Garden';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <aside
@@ -15,7 +16,7 @@ const siteName = 'My Garden';
   class="fixed top-0 right-0 lg:left-0 lg:right-auto h-screen w-60 bg-gray-50 dark:bg-gray-900 border-l lg:border-l-0 lg:border-r border-gray-200 dark:border-gray-800 flex flex-col z-50 transition-transform duration-300 translate-x-full lg:translate-x-0"
 >
   <div class="p-4 border-b border-gray-200 dark:border-gray-800">
-    <a href="/" class="text-lg font-semibold text-green-700 dark:text-green-400 hover:text-green-600 flex items-center gap-2">
+    <a href={`${base}/`} class="text-lg font-semibold text-green-700 dark:text-green-400 hover:text-green-600 flex items-center gap-2">
       🌱 {siteName}
     </a>
   </div>
@@ -28,7 +29,7 @@ const siteName = 'My Garden';
         return (
           <li>
             <a
-              href={`/notes/${topic.slug}`}
+              href={`${base}/notes/${topic.slug}`}
               class:list={[
                 'block px-3 py-2 rounded-md text-sm transition-colors',
                 isActive
