@@ -16,7 +16,9 @@
     "new": "node src/scripts/new-note.mjs",
     "notes": "node src/scripts/list-notes.mjs",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix"
+    "lint:fix": "eslint src --fix",
+    "check": "astro check",
+    "build:check": "npm run build && astro check"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.4",
