@@ -13,6 +13,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "new": "node src/scripts/new-note.mjs",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },

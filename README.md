@@ -103,11 +103,13 @@ Links that don't resolve to a real note are shown with a visual indicator rather
 
 Run these from the project root in your terminal:
 
-| Command           | What it does                                      |
-| :---------------- | :------------------------------------------------ |
-| `npm run dev`     | Start a local development server at port 4321     |
-| `npm run build`   | Build the static site into `./dist/`              |
-| `npm run preview` | Preview the production build locally before deploy |
+| Command                        | What it does                                       |
+| :----------------------------- | :------------------------------------------------- |
+| `npm run dev`                  | Start a local development server at port 4321      |
+| `npm run build`                | Build the static site into `./dist/`               |
+| `npm run preview`              | Preview the production build locally before deploy |
+| `npm run new -- "Note Title"`              | Create a new note with frontmatter pre-filled      |
+| `npm run new -- "Note Title" philosophy`   | Create a note inside a topic folder                |
 
 
 ## Deploying
