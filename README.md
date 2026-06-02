@@ -110,6 +110,7 @@ Run these from the project root in your terminal:
 | `npm run preview`              | Preview the production build locally before deploy |
 | `npm run new -- "Note Title"`              | Create a new note with frontmatter pre-filled      |
 | `npm run new -- "Note Title" philosophy`   | Create a note inside a topic folder                |
+| `npm run notes`                            | List all non-draft notes with their slug and title |
 
 
 ## Deploying

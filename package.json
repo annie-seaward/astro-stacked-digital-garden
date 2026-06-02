@@ -14,6 +14,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "new": "node src/scripts/new-note.mjs",
+    "notes": "node src/scripts/list-notes.mjs",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },
