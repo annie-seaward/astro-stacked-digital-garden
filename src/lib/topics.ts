@@ -37,8 +37,12 @@ export async function getTopics(): Promise<Topic[]> {
 
   const topics: Topic[] = [];
   for (const folder of [...topFolders].sort()) {
-    const label = folder.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const slug = folderHasIndex[folder] ? folder : (folderFirstFile[folder] || folder);
+    const label = folder
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    const slug = folderHasIndex[folder]
+      ? folder
+      : folderFirstFile[folder] || folder;
     topics.push({ label, slug });
   }
   return topics;

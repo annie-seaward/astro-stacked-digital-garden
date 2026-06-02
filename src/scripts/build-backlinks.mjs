@@ -1,4 +1,10 @@
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'fs';
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+} from 'fs';
 import { join, relative, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,12 +14,19 @@ const notesDir = join(root, 'src', 'content', 'notes');
 const outDir = join(root, 'src', 'data');
 
 function slugify(text) {
-  return text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '');
 }
 
 function fileSlug(filePath) {
   const rel = relative(notesDir, filePath);
-  return rel.replace(/\/index\.md$/, '').replace(/\.md$/, '').replace(/\\/g, '/');
+  return rel
+    .replace(/\/index\.md$/, '')
+    .replace(/\.md$/, '')
+    .replace(/\\/g, '/');
 }
 
 function getAllMdFiles(dir) {
@@ -49,15 +62,18 @@ for (const file of files) {
   const content = readFileSync(file, 'utf-8');
   const sourceSlug = fileSlug(file);
   const sourceTitleMatch = content.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-  const sourceTitle = sourceTitleMatch ? sourceTitleMatch[1] : basename(file, '.md');
+  const sourceTitle = sourceTitleMatch
+    ? sourceTitleMatch[1]
+    : basename(file, '.md');
 
   const wikilinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
   let match;
   while ((match = wikilinkRegex.exec(content)) !== null) {
     const target = match[1].trim();
-    const targetSlug = registry[slugify(target)] || registry[target] || slugify(target);
+    const targetSlug =
+      registry[slugify(target)] || registry[target] || slugify(target);
     if (!backlinks[targetSlug]) backlinks[targetSlug] = [];
-    if (!backlinks[targetSlug].find(b => b.slug === sourceSlug)) {
+    if (!backlinks[targetSlug].find((b) => b.slug === sourceSlug)) {
       backlinks[targetSlug].push({ slug: sourceSlug, title: sourceTitle });
     }
   }
@@ -79,7 +95,10 @@ for (const [key, fullSlug] of Object.entries(registry)) {
 }
 
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, 'backlinks.json'), JSON.stringify(backlinks, null, 2));
+writeFileSync(
+  join(outDir, 'backlinks.json'),
+  JSON.stringify(backlinks, null, 2),
+);
 writeFileSync(join(outDir, 'slugmap.json'), JSON.stringify(slugmap, null, 2));
 console.log('Backlinks built:', Object.keys(backlinks).length, 'targets');
 console.log('Slugmap built:', Object.keys(slugmap).length, 'entries');

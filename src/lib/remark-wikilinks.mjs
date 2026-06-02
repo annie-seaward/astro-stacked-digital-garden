@@ -1,7 +1,11 @@
 import { visit } from 'unist-util-visit';
 
 function slugify(text) {
-  return text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '');
 }
 
 export default function remarkWikilinks({ slugmap = {} } = {}) {
@@ -19,15 +23,20 @@ export default function remarkWikilinks({ slugmap = {} } = {}) {
 
       while ((match = regex.exec(node.value)) !== null) {
         if (match.index > lastIndex) {
-          parts.push({ type: 'text', value: node.value.slice(lastIndex, match.index) });
+          parts.push({
+            type: 'text',
+            value: node.value.slice(lastIndex, match.index),
+          });
         }
         const inner = match[1];
         const pipeIdx = inner.indexOf('|');
         const target = pipeIdx === -1 ? inner : inner.slice(0, pipeIdx);
-        const label = pipeIdx === -1 ? target.trim() : inner.slice(pipeIdx + 1).trim();
+        const label =
+          pipeIdx === -1 ? target.trim() : inner.slice(pipeIdx + 1).trim();
         const simpleSlug = slugify(target);
         // Resolve to full slug (e.g. "stoicism" → "philosophy/stoicism")
-        const fullSlug = slugmap[simpleSlug] || slugmap[target.trim()] || simpleSlug;
+        const fullSlug =
+          slugmap[simpleSlug] || slugmap[target.trim()] || simpleSlug;
         const isBroken = fullSlug === simpleSlug && !slugmap[simpleSlug];
         parts.push({
           type: 'html',

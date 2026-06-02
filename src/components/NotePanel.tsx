@@ -19,7 +19,19 @@ interface Props {
 const FULL_WIDTH = 520;
 const OBSTRUCTED_WIDTH = 48;
 
-export function NotePanel({ html, title, isObstructed, isObstructedRight, isHighlighted, isNew, isMobile, fullWidthOverride, panelRef, onObstructedClick, onLinkClick }: Props) {
+export function NotePanel({
+  html,
+  title,
+  isObstructed,
+  isObstructedRight,
+  isHighlighted,
+  isNew,
+  isMobile,
+  fullWidthOverride,
+  panelRef,
+  onObstructedClick,
+  onLinkClick,
+}: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Slide-in: fires once on mount when panel is new
@@ -27,7 +39,11 @@ export function NotePanel({ html, title, isObstructed, isObstructedRight, isHigh
     if (!isNew || !wrapperRef.current) return;
     const el = wrapperRef.current;
     el.classList.add('panel-entering');
-    el.addEventListener('animationend', () => el.classList.remove('panel-entering'), { once: true });
+    el.addEventListener(
+      'animationend',
+      () => el.classList.remove('panel-entering'),
+      { once: true },
+    );
   }, []); // intentionally empty — fires once on mount only
 
   // Wikilink click interception
@@ -65,7 +81,11 @@ export function NotePanel({ html, title, isObstructed, isObstructedRight, isHigh
     scrollableRef.current.scrollTop = 0;
   }, [isObstructed]);
 
-  const fullWidth = fullWidthOverride ?? (isMobile ? globalThis.innerWidth : Math.min(FULL_WIDTH, Math.floor(globalThis.innerWidth * 0.9)));
+  const fullWidth =
+    fullWidthOverride ??
+    (isMobile
+      ? globalThis.innerWidth
+      : Math.min(FULL_WIDTH, Math.floor(globalThis.innerWidth * 0.9)));
   const targetWidth = isObstructed ? OBSTRUCTED_WIDTH : fullWidth;
 
   const borderClass = isObstructedRight
@@ -76,7 +96,9 @@ export function NotePanel({ html, title, isObstructed, isObstructedRight, isHigh
     ? 'bg-gray-50 dark:bg-gray-900 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800'
     : 'bg-white dark:bg-gray-950';
 
-  const innerClass = isHighlighted ? ' note-panel panel-highlight' : ' note-panel';
+  const innerClass = isHighlighted
+    ? ' note-panel panel-highlight'
+    : ' note-panel';
 
   return (
     <div

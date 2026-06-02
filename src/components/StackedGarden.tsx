@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
+
 import { NotePanel } from './NotePanel';
 
 interface NoteData {
@@ -19,7 +20,8 @@ async function fetchNote(slug: string): Promise<NoteData | null> {
     const doc = parser.parseFromString(htmlText, 'text/html');
     const content = doc.getElementById('note-content');
     const titleEl = doc.querySelector('h1');
-    const noteTitle = titleEl?.textContent?.trim() || slug.split('/').pop() || slug;
+    const noteTitle =
+      titleEl?.textContent?.trim() || slug.split('/').pop() || slug;
     const noteHtml = content?.innerHTML || '';
     const data: NoteData = { slug, title: noteTitle, html: noteHtml };
     cache.set(slug, data);
@@ -30,7 +32,9 @@ async function fetchNote(slug: string): Promise<NoteData | null> {
 }
 
 function readPrimaryFromDOM(doc: Document = document): NoteData {
-  const wrapper = doc.querySelector('[data-primary-slug]') as HTMLElement | null;
+  const wrapper = doc.querySelector(
+    '[data-primary-slug]',
+  ) as HTMLElement | null;
   const slug = wrapper?.dataset?.primarySlug || '';
   const title = wrapper?.dataset?.primaryTitle || slug;
   const html = doc.getElementById('note-content')?.innerHTML || '';
@@ -111,12 +115,14 @@ export function StackedGarden() {
       if (!cancelled) setPanels(loaded);
     }
     buildPanels();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [stackSlugs, currentPrimary]);
 
   // Mark all rendered panels as seen after each render
   useEffect(() => {
-    panels.forEach(p => seenSlugsRef.current.add(p.slug));
+    panels.forEach((p) => seenSlugsRef.current.add(p.slug));
   }, [panels]);
 
   // Sync URL when stack changes
@@ -141,33 +147,51 @@ export function StackedGarden() {
     return () => globalThis.removeEventListener('popstate', handler);
   }, []);
 
-  const focusNote = useCallback((slug: string) => {
-    const idx = slug === currentPrimary.slug ? 0 : stackSlugs.indexOf(slug) + 1;
-    setFocusedIndex(idx);
-    setHighlightSlug(slug);
-    setTimeout(() => {
-      panelRefs.current.get(slug)?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-    }, 50);
-    setTimeout(() => setHighlightSlug(null), 1300);
-  }, [currentPrimary.slug, stackSlugs]);
+  const focusNote = useCallback(
+    (slug: string) => {
+      const idx =
+        slug === currentPrimary.slug ? 0 : stackSlugs.indexOf(slug) + 1;
+      setFocusedIndex(idx);
+      setHighlightSlug(slug);
+      setTimeout(() => {
+        panelRefs.current.get(slug)?.scrollIntoView({
+          behavior: 'smooth',
+          inline: 'nearest',
+          block: 'nearest',
+        });
+      }, 50);
+      setTimeout(() => setHighlightSlug(null), 1300);
+    },
+    [currentPrimary.slug, stackSlugs],
+  );
 
-  const openNote = useCallback((slug: string) => {
-    if (slug === currentPrimary.slug || stackSlugs.includes(slug)) {
-      focusNote(slug);
-      return;
-    }
-    const newIndex = panels.length;
-    setStackSlugs(prev => [...prev, slug]);
-    setFocusedIndex(newIndex);
-    requestAnimationFrame(() => {
-      containerRef.current?.scrollTo({ left: containerRef.current.scrollWidth, behavior: 'smooth' });
-    });
-  }, [currentPrimary.slug, stackSlugs, focusNote, panels.length]);
+  const openNote = useCallback(
+    (slug: string) => {
+      if (slug === currentPrimary.slug || stackSlugs.includes(slug)) {
+        focusNote(slug);
+        return;
+      }
+      const newIndex = panels.length;
+      setStackSlugs((prev) => [...prev, slug]);
+      setFocusedIndex(newIndex);
+      requestAnimationFrame(() => {
+        containerRef.current?.scrollTo({
+          left: containerRef.current.scrollWidth,
+          behavior: 'smooth',
+        });
+      });
+    },
+    [currentPrimary.slug, stackSlugs, focusNote, panels.length],
+  );
 
-  const bringToFront = useCallback((slug: string) => {
-    const idx = slug === currentPrimary.slug ? 0 : stackSlugs.indexOf(slug) + 1;
-    setFocusedIndex(idx);
-  }, [currentPrimary.slug, stackSlugs]);
+  const bringToFront = useCallback(
+    (slug: string) => {
+      const idx =
+        slug === currentPrimary.slug ? 0 : stackSlugs.indexOf(slug) + 1;
+      setFocusedIndex(idx);
+    },
+    [currentPrimary.slug, stackSlugs],
+  );
 
   const calcLayout = () => {
     const mobile = window.innerWidth < 768;
@@ -175,8 +199,16 @@ export function StackedGarden() {
     const sidebarPermanent = window.innerWidth >= 1024;
     const sidebarWidth = sidebarPermanent ? 240 : 0;
     const panelWidth = 520;
-    const count = Math.max(1, Math.floor((window.innerWidth - sidebarWidth) / panelWidth));
-    return { isMobile: false, isSinglePage: count < 2, visibleCount: count, sidebarPermanent };
+    const count = Math.max(
+      1,
+      Math.floor((window.innerWidth - sidebarWidth) / panelWidth),
+    );
+    return {
+      isMobile: false,
+      isSinglePage: count < 2,
+      visibleCount: count,
+      sidebarPermanent,
+    };
   };
   const [layout, setLayout] = useState(calcLayout);
   const { visibleCount, isMobile, isSinglePage, sidebarPermanent } = layout;
@@ -195,24 +227,36 @@ export function StackedGarden() {
   }
 
   return (
-    <div ref={containerRef} class="flex h-full overflow-x-auto overflow-y-hidden scroll-smooth">
+    <div
+      ref={containerRef}
+      class="flex h-full overflow-x-auto overflow-y-hidden scroll-smooth"
+    >
       {(() => {
         const clampedFocus = Math.min(focusedIndex, panels.length - 1);
         // Show as many panels as fit; keep focus visible; fill right first, then left
-        const rightEdge = Math.min(panels.length - 1, clampedFocus + (visibleCount - 1));
+        const rightEdge = Math.min(
+          panels.length - 1,
+          clampedFocus + (visibleCount - 1),
+        );
         const leftEdge = Math.max(0, rightEdge - (visibleCount - 1));
-        const obstructedCount = isSinglePage && !isMobile ? panels.length - 1 : 0;
+        const obstructedCount =
+          isSinglePage && !isMobile ? panels.length - 1 : 0;
         const sidebarOffset = sidebarPermanent ? 240 : 0;
-        const activePanelWidth = (isSinglePage && !isMobile)
-          ? window.innerWidth - sidebarOffset - obstructedCount * 48
-          : undefined;
+        const activePanelWidth =
+          isSinglePage && !isMobile
+            ? window.innerWidth - sidebarOffset - obstructedCount * 48
+            : undefined;
+        // eslint-disable-next-line react-hooks/refs -- seenSlugsRef read during render for animation-only `isNew` flag; intentional
         return panels.map((note, i) => {
           const isObstructedLeft = i < leftEdge;
           const isObstructedRight = i > rightEdge;
           const isObstructed = isObstructedLeft || isObstructedRight;
           if (isMobile && isObstructed) return null;
           const isNew = !seenSlugsRef.current.has(note.slug);
-          const fullWidthOverride = (isSinglePage && !isMobile && !isObstructed) ? activePanelWidth : undefined;
+          const fullWidthOverride =
+            isSinglePage && !isMobile && !isObstructed
+              ? activePanelWidth
+              : undefined;
           return (
             <NotePanel
               key={note.slug}
