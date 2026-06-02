@@ -28,15 +28,20 @@ This template gives you:
 
 ### Setup
 
+**Fork first** — this lets you have your own copy to publish and customise:
+
+1. Click **Fork** (top-right on GitHub) to create a copy under your own account
+2. Clone your fork:
+
 ```bash
-# 1. Clone or download this repo
 git clone https://github.com/YOUR_USERNAME/astro-stacked-digital-garden
 cd astro-stacked-digital-garden
+```
 
-# 2. Install dependencies
+3. Install dependencies and start the dev server:
+
+```bash
 npm install
-
-# 3. Start the development server
 npm run dev
 ```
 
