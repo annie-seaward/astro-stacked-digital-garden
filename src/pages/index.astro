@@ -1,3 +1,42 @@
 ---
-return Astro.redirect('/notes/index');
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { StackedGarden } from '../components/StackedGarden';
+import { getTopics } from '../lib/topics';
+import { getBacklinks } from '../lib/backlinks';
+
+const entry = await getEntry('notes', 'index');
+if (!entry) return Astro.redirect('/notes/index');
+
+const { Content } = await render(entry);
+const slug = entry.id;
+const title = entry.data.title || 'Home';
+const topics = await getTopics();
+const backlinks = getBacklinks(slug);
 ---
+
+<BaseLayout title={title}>
+  <div class="flex h-screen overflow-hidden">
+    <Sidebar topics={topics} currentSlug={slug} />
+
+    <main class="flex-1 ml-0 lg:ml-60 h-screen overflow-hidden">
+      <div id="note-content" class="hidden">
+        <Content />
+      </div>
+
+      <div
+        transition:persist="stacked-garden"
+        data-primary-slug={slug}
+        data-primary-title={title}
+        class="h-full"
+      >
+        <StackedGarden client:only="preact" />
+      </div>
+    </main>
+  </div>
+
+  {backlinks.length > 0 && (
+    <aside id="backlinks-section" class="hidden" data-backlinks={JSON.stringify(backlinks)} />
+  )}
+</BaseLayout>
