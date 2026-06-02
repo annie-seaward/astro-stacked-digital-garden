@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import Analytics from '@vercel/analytics/astro';
 import '../styles/global.css';
 
 interface Props {
@@ -14,6 +15,7 @@ const { title = 'Digital Garden' } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
   <ClientRouter />
+  <Analytics />
   <script is:inline>
     function applyStoredTheme(el) {
       const stored = localStorage.getItem('theme');
